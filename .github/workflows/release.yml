@@ -1,0 +1,49 @@
+name: Release Assets
+
+on:
+  release:
+    types: [created]
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-upload:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Set up Go
+        uses: actions/setup-go@v7
+        with:
+          go-version: '1.25'
+
+      - name: Build binaries
+        run: |
+          mkdir -p dist
+
+          VERSION_PACKAGE=github.com/valentin-kaiser/go-core/version
+          GIT_TAG="${{ github.event.release.tag_name }}"
+          GIT_COMMIT="$(git rev-parse HEAD)"
+          GIT_SHORT="$(git rev-parse --short HEAD)"
+          BUILD_TIME="$(date +%FT%T%z)"
+          LDFLAGS="-X ${VERSION_PACKAGE}.GitTag=${GIT_TAG} -X ${VERSION_PACKAGE}.GitCommit=${GIT_COMMIT} -X ${VERSION_PACKAGE}.GitShort=${GIT_SHORT} -X ${VERSION_PACKAGE}.BuildDate=${BUILD_TIME}"
+          
+          # Build for multiple platforms
+          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "${LDFLAGS}" -o dist/protoc-gen-go-xrpc-linux-amd64 ./cmd/protoc-gen-go-xrpc
+          CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -ldflags "${LDFLAGS}" -o dist/protoc-gen-go-xrpc-linux-arm64 ./cmd/protoc-gen-go-xrpc
+          CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -ldflags "${LDFLAGS}" -o dist/protoc-gen-go-xrpc-darwin-amd64 ./cmd/protoc-gen-go-xrpc
+          CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 go build -ldflags "${LDFLAGS}" -o dist/protoc-gen-go-xrpc-darwin-arm64 ./cmd/protoc-gen-go-xrpc
+          CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -ldflags "${LDFLAGS}" -o dist/protoc-gen-go-xrpc-windows-amd64.exe ./cmd/protoc-gen-go-xrpc
+          CGO_ENABLED=0 GOOS=windows GOARCH=arm64 go build -ldflags "${LDFLAGS}" -o dist/protoc-gen-go-xrpc-windows-arm64.exe ./cmd/protoc-gen-go-xrpc
+
+      - name: Upload Release Assets
+        uses: softprops/action-gh-release@v3
+        with:
+          files: |
+            dist/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
