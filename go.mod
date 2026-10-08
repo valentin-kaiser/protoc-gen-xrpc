@@ -3,7 +3,7 @@ module github.com/valentin-kaiser/protoc-gen-xrpc
 go 1.26.0
 
 require (
-	github.com/valentin-kaiser/go-core v1.11.7
+	github.com/valentin-kaiser/go-core v1.12.1
 	google.golang.org/protobuf v1.36.12
 )
 
