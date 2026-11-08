@@ -529,6 +529,15 @@ func TestGenerate_SchemaTS(t *testing.T) {
 			t.Errorf("schema is missing %s, got:\n%s", want, content)
 		}
 	}
+	for _, want := range []string{
+		"export function createCodec(",
+		"export const { toWire, fromWire } = createCodec(messages);",
+		"export function methodTypes(",
+	} {
+		if !strings.Contains(content, want) {
+			t.Errorf("generated module is missing the codec part %q", want)
+		}
+	}
 	if strings.Contains(content, "ByIdEntry") {
 		t.Errorf("map entries must not appear as messages, got:\n%s", content)
 	}

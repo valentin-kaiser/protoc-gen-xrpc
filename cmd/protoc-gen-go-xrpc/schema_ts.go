@@ -16,7 +16,8 @@ const (
 )
 
 // generateSchemaTS renders a TypeScript module describing every message and RPC method,
-// so a browser client can translate between field names and the field numbers used on the wire.
+// followed by the codec (createCodec, toWire, fromWire, methodTypes) that uses it to translate
+// between field names and the field numbers used on the wire.
 // Well-known types are left out: their JSON form carries no field keys.
 func generateSchemaTS(files []*protogen.File) string {
 	messages := map[string]string{}
@@ -67,6 +68,7 @@ func generateSchemaTS(files []*protogen.File) string {
 		fmt.Fprintf(&b, "  %q: %s,\n", name, methods[name])
 	}
 	b.WriteString("};\n")
+	b.WriteString(codecTS)
 	return b.String()
 }
 

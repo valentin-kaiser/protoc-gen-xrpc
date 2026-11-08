@@ -145,7 +145,7 @@ func main() {
 - `module=<path>` / `paths=source_relative` control the output location.
 - `openapi_dir=<dir>` writes an OpenAPI 3.1 document per proto describing the JSON-RPC 2.0 envelopes and the WebSocket subscription protocol of streaming methods.
 - `openapi_version=<version>` sets the version in the OpenAPI document.
-- `schema_ts=<file>` writes a TypeScript schema of all messages and methods.
+- `schema_ts=<file>` writes a TypeScript module with the schema of all messages and methods (`messages`, `methods`) plus the xRPC codec (`createCodec`, `toWire`, `fromWire`, `methodTypes`) that translates between name-keyed models and the field-number-keyed wire JSON. Projects no longer need their own codec.
 
 ## Method Signatures
 
